@@ -11,14 +11,31 @@ return {
   },
   lazy = false,
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '<C-n>', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
   },
   opts = {
+    event_handlers = {
+      {
+        event = 'file_opened',
+        handler = function(path)
+          -- This command closes the Neo-tree window
+          require('neo-tree.command').execute { action = 'close' }
+        end,
+      },
+    },
     filesystem = {
       window = {
         mappings = {
-          ['\\'] = 'close_window',
+          -- ['<C-n>'] = 'close_window',
         },
+      },
+      filtered_items = {
+        visible = false,
+        hide_dotfiles = false,
+        hide_gitignored = false,
+      },
+      follow_current_file = {
+        enabled = true,
       },
     },
   },
