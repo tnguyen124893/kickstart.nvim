@@ -691,7 +691,20 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {
+          settings = {
+            python = {
+              venvPath = '.',
+              venv = '.venv',
+              analysis = {
+                autoSearchPath = true,
+                diagnosticMode = 'openFilesOnly',
+                useLibraryCodeForTypes = true,
+              },
+            },
+          },
+        },
+        sqlls = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -822,6 +835,7 @@ require('lazy').setup({
           --    https://github.com/rafamadriz/friendly-snippets
           -- {
           --   'rafamadriz/friendly-snippets',
+          --   print(response.text)
           --   config = function()
           --     require('luasnip.loaders.from_vscode').lazy_load()
           --   end,
