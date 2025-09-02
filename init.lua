@@ -119,7 +119,8 @@ vim.o.showmode = false
 
 -- Folding
 vim.opt.foldenable = true
-vim.opt.foldmethod = 'syntax'
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldlevelstart = 99
 
 -- Sync clipboard between OS and Neovim.
@@ -896,6 +897,17 @@ require('lazy').setup({
     },
   },
 
+  {
+    'craftzdog/solarized-osaka.nvim',
+    lazy = true,
+    priority = 1000,
+    opts = function()
+      return {
+        transparent = true,
+      }
+    end,
+  },
+
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
@@ -916,7 +928,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'solarized-osaka'
     end,
   },
 
