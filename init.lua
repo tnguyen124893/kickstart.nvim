@@ -704,7 +704,7 @@ require('lazy').setup({
             },
           },
         },
-        sqlls = {},
+        -- sqlls = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -787,7 +787,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, sql = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -807,6 +807,11 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        sqlfmt = {
+          append_args = { '--dialect', 'clickhouse' },
+        },
       },
     },
   },
@@ -910,7 +915,17 @@ require('lazy').setup({
       signature = { enabled = true },
     },
   },
-
+  {
+    'xiyaowong/transparent.nvim',
+    lazy = false, -- It's important for this to not be lazy loaded if you want immediate transparency
+    config = function()
+      require('transparent').setup {
+        -- Optional configuration options here
+        -- auto = true, -- Automatically applies transparent
+        -- excludes = { 'LineNr' }, -- Example of excluding a group from transparency
+      }
+    end,
+  },
   {
     'craftzdog/solarized-osaka.nvim',
     lazy = true,
@@ -942,7 +957,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'solarized-osaka'
+      vim.cmd.colorscheme 'unokai'
     end,
   },
 
