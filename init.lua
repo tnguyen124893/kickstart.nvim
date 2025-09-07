@@ -104,12 +104,6 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 vim.o.relativenumber = true
 -- Set a custom highlight for line numbers that overrides colorschemes
-vim.api.nvim_create_autocmd('ColorScheme', {
-  pattern = '*',
-  callback = function()
-    vim.cmd 'highlight LineNr guifg=#b0b0b0 ctermfg=lightgray'
-  end,
-})
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -943,22 +937,8 @@ require('lazy').setup({
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        transparent = true,
-        styles = {
-          sidebars = 'transparent',
-          floats = 'transparent',
-        },
-      }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'default'
-    end,
+    lazy = false,
+    depedencies = { 'xiyaowong/transparent.nvim' },
   },
 
   -- Highlight todo, notes, etc in comments
@@ -1086,5 +1066,20 @@ require('lazy').setup({
   },
 })
 
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    vim.cmd.colorscheme 'default'
+  end,
+})
+vim.api.nvim_create_autocmd('VimEnter', {
+  pattern = '*',
+  callback = function()
+    -- Your specific LineNr highlight setting
+    vim.cmd 'highlight LineNr guifg=#b0b0b0 ctermfg=lightgray'
+
+    -- This ensures transparent.nvim is called after everything has loaded
+    vim.cmd 'TransparentEnable'
+  end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
