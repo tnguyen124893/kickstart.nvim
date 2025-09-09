@@ -913,7 +913,7 @@ require('lazy').setup({
   },
   {
     'xiyaowong/transparent.nvim',
-    lazy = false, -- It's important for this to not be lazy loaded if you want immediate transparency
+    lazy = true, -- It's important for this to not be lazy loaded if you want immediate transparency
     config = function()
       require('transparent').setup {
         -- Optional configuration options here
@@ -923,50 +923,14 @@ require('lazy').setup({
     end,
   },
   {
-    'craftzdog/solarized-osaka.nvim',
-    lazy = false,
-    priority = 1000,
-    opts = function()
-      return {
-        transparent = true,
-        styles = {
-          -- Style to be applied to different syntax groups
-          -- Value is any valid attr-list value for `:help nvim_set_hl`
-          comments = { italic = true },
-          keywords = { italic = false },
-          functions = { italic = false },
-          variables = {},
-          -- Background styles. Can be "dark", "transparent" or "normal"
-          sidebars = 'transparent', -- style for sidebars, see below
-          floats = 'transparent', -- style for floating windows
-        },
-      }
-    end,
-  },
-  {
     'neanias/everforest-nvim',
     version = false,
     lazy = false,
-    depedencies = { 'xiyaowong/transparent.nvim' },
     priority = 1000, -- make sure to load this before all the other start plugins
     -- Optional; default configuration will be used if setup isn't called.
     config = function()
       require('everforest').setup {
         italic = false,
-      }
-    end,
-  },
-  {
-    'folke/tokyonight.nvim',
-    lazy = false,
-    depedencies = { 'xiyaowong/transparent.nvim' },
-    config = function()
-      require('tokyonight').setup {
-        -- disable italic for functions
-        styles = {
-          keywords = { italic = false },
-          functions = { italic = false },
-        },
       }
     end,
   },
@@ -1108,7 +1072,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
     vim.cmd 'highlight LineNr guifg=#b0b0b0 ctermfg=lightgray'
 
     -- This ensures transparent.nvim is called after everything has loaded
-    vim.cmd 'TransparentEnable'
+    -- vim.cmd 'TransparentEnable'
   end,
 })
 -- The line beneath this is called `modeline`. See `:help modeline`
