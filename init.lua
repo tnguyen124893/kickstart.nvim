@@ -168,6 +168,9 @@ vim.o.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 10
 
+-- Set completeopt for built-in completion
+vim.o.completeopt = 'menuone,noselect'
+
 -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
@@ -254,7 +257,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  -- 'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -698,7 +701,6 @@ require('lazy').setup({
             },
           },
         },
-        -- sqlls = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -884,7 +886,7 @@ require('lazy').setup({
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = { auto_show = true, auto_show_delay_ms = 500 },
       },
 
       sources = {
@@ -922,23 +924,51 @@ require('lazy').setup({
   },
   {
     'craftzdog/solarized-osaka.nvim',
-    lazy = true,
+    lazy = false,
     priority = 1000,
     opts = function()
       return {
         transparent = true,
+        styles = {
+          -- Style to be applied to different syntax groups
+          -- Value is any valid attr-list value for `:help nvim_set_hl`
+          comments = { italic = true },
+          keywords = { italic = false },
+          functions = { italic = false },
+          variables = {},
+          -- Background styles. Can be "dark", "transparent" or "normal"
+          sidebars = 'transparent', -- style for sidebars, see below
+          floats = 'transparent', -- style for floating windows
+        },
       }
     end,
   },
-
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  {
+    'neanias/everforest-nvim',
+    version = false,
+    lazy = false,
+    depedencies = { 'xiyaowong/transparent.nvim' },
+    priority = 1000, -- make sure to load this before all the other start plugins
+    -- Optional; default configuration will be used if setup isn't called.
+    config = function()
+      require('everforest').setup {
+        italic = false,
+      }
+    end,
+  },
+  {
     'folke/tokyonight.nvim',
     lazy = false,
     depedencies = { 'xiyaowong/transparent.nvim' },
+    config = function()
+      require('tokyonight').setup {
+        -- disable italic for functions
+        styles = {
+          keywords = { italic = false },
+          functions = { italic = false },
+        },
+      }
+    end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -1028,10 +1058,10 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  -- -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -1068,7 +1098,7 @@ require('lazy').setup({
 
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd.colorscheme 'default'
+    vim.cmd.colorscheme 'everforest'
   end,
 })
 vim.api.nvim_create_autocmd('VimEnter', {
