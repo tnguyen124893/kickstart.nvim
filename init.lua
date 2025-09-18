@@ -116,31 +116,27 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+
+-- Better navigation in Insert mode
+vim.keymap.set('i', '<C-h>', '<left>')
+vim.keymap.set('i', '<C-l>', '<right>')
+vim.keymap.set('i', '<C-j>', '<down>')
+vim.keymap.set('i', '<C-k>', '<up>')
+vim.keymap.set('i', 'jk', '<Esc>')
 
 -- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
-
 -- [[ Basic Autocommands ]]
---  See `:help lua-guide-autocommands`
-
 -- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
@@ -165,16 +161,6 @@ end
 local rtp = vim.opt.rtp
 rtp:prepend(lazypath)
 
--- [[ Configure and install plugins ]]
---
---  To check the current status of your plugins, run
---    :Lazy
---
---  You can press `?` in this menu for help. Use `:q` to close the window
---
---  To update plugins you can run
---    :Lazy update
---
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
@@ -432,16 +418,6 @@ require('lazy').setup({
       'saghen/blink.cmp',
     },
     config = function()
-      vim.filetype.add {
-        extension = {
-          jinja = 'jinja',
-          jinja2 = 'jinja',
-          j2 = 'jinja',
-        },
-        pattern = {
-          ['.sql'] = 'jinja',
-        },
-      }
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -639,7 +615,7 @@ require('lazy').setup({
       }
     end,
   },
-  {
+  { -- Dbt
     'PedramNavid/dbtpal',
     dependencies = {
       'nvim-lua/plenary.nvim',
@@ -707,10 +683,10 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
-        sql = { 'sqlfmt' },
+        sql = { 'sqlfluff' },
         yml = { 'yamlfmt' },
         yaml = { 'yamlfmt' },
-        --
+        terraform = { 'terraform_fmt' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
@@ -782,7 +758,7 @@ require('lazy').setup({
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
         preset = 'default',
-
+        ['<C-k>'] = false,
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
       },
@@ -824,7 +800,8 @@ require('lazy').setup({
       signature = { enabled = true },
     },
   },
-  {
+
+  { --Transparent
     'xiyaowong/transparent.nvim',
     lazy = true, -- It's important for this to not be lazy loaded if you want immediate transparency
     config = function()
@@ -835,7 +812,8 @@ require('lazy').setup({
       }
     end,
   },
-  {
+
+  { -- Everforest Theme
     'neanias/everforest-nvim',
     version = false,
     lazy = false,
@@ -847,7 +825,16 @@ require('lazy').setup({
       }
     end,
   },
-
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
+  {
+    'dru89/vim-adventurous',
+    lazy = false,
+  },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -975,7 +962,7 @@ require('lazy').setup({
 
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd.colorscheme 'everforest'
+    vim.cmd.colorscheme 'tokyonight'
   end,
 })
 vim.api.nvim_create_autocmd('VimEnter', {
