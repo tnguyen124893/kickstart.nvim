@@ -135,6 +135,9 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Cheat a bit
+vim.keymap.set('n', ';', ':')
+
 -- [[ Basic Autocommands ]]
 -- Highlight when yanking (copying) text
 --  See `:help vim.hl.on_yank()`
@@ -801,39 +804,32 @@ require('lazy').setup({
     },
   },
 
-  { --Transparent
-    'xiyaowong/transparent.nvim',
-    lazy = true, -- It's important for this to not be lazy loaded if you want immediate transparency
+  {
+    'tribela/transparent.nvim',
+    event = 'VimEnter',
+    -- config = true,
     config = function()
-      require('transparent').setup {
-        -- Optional configuration options here
-        -- auto = true, -- Automatically applies transparent
-        -- excludes = { 'LineNr' }, -- Example of excluding a group from transparency
-      }
+      require('transparent').setup()
     end,
   },
 
-  { -- Everforest Theme
-    'neanias/everforest-nvim',
-    version = false,
-    lazy = false,
-    priority = 1000, -- make sure to load this before all the other start plugins
-    -- Optional; default configuration will be used if setup isn't called.
-    config = function()
-      require('everforest').setup {
-        italic = false,
-      }
-    end,
-  },
+  -- { -- Everforest Theme
+  --   'neanias/everforest-nvim',
+  --   version = false,
+  --   lazy = false,
+  --   priority = 1000, -- make sure to load this before all the other start plugins
+  --   -- Optional; default configuration will be used if setup isn't called.
+  --   config = function()
+  --     require('everforest').setup {
+  --       italic = false,
+  --     }
+  --   end,
+  -- },
   {
     'folke/tokyonight.nvim',
     lazy = false,
     priority = 1000,
     opts = {},
-  },
-  {
-    'dru89/vim-adventurous',
-    lazy = false,
   },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
@@ -855,22 +851,6 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
       require('mini.icons').setup()
       require('mini.files').setup {
         vim.keymap.set('n', '<C-n>', function()
@@ -878,12 +858,16 @@ require('lazy').setup({
         end, { desc = 'Open mini.files (directory of current file)' }),
 
         mappings = {
-          close = '<Esc>',
           go_in = '<Enter>',
         },
       }
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
+    end,
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup()
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -900,9 +884,9 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        -- additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      -- indent = { enable = true, disable = { 'ruby' } },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -970,9 +954,6 @@ vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
     -- Your specific LineNr highlight setting
     vim.cmd 'highlight LineNr guifg=#b0b0b0 ctermfg=lightgray'
-
-    -- This ensures transparent.nvim is called after everything has loaded
-    -- vim.cmd 'TransparentEnable'
   end,
 })
 vim.api.nvim_create_autocmd('FileType', {
