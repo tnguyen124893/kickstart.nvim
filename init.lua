@@ -693,11 +693,6 @@ require('lazy').setup({
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
-      formatters = {
-        sqlfmt = {
-          append_args = { '--dialect', 'clickhouse' },
-        },
-      },
     },
   },
 
@@ -829,7 +824,12 @@ require('lazy').setup({
     'folke/tokyonight.nvim',
     lazy = false,
     priority = 1000,
-    opts = {},
+    opts = {
+      styles = {
+        comments = { italic = false },
+        keywords = { italic = false },
+      },
+    },
   },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
