@@ -11,7 +11,7 @@ vim.g.have_nerd_font = true
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
-
+vim.o.termguicolors = true
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -637,7 +637,7 @@ require('lazy').setup({
     },
     config = function()
       require('dbtpal').setup {
-        path_to_dbt = 'dbt',
+        path_to_dbt = '/usr/local/bin/dbt',
         path_to_dbt_project = '',
         path_to_dbt_profiles_dir = vim.fn.expand '~/.dbt',
         include_profiles_dir = true,
@@ -807,19 +807,6 @@ require('lazy').setup({
       require('transparent').setup()
     end,
   },
-
-  -- { -- Everforest Theme
-  --   'neanias/everforest-nvim',
-  --   version = false,
-  --   lazy = false,
-  --   priority = 1000, -- make sure to load this before all the other start plugins
-  --   -- Optional; default configuration will be used if setup isn't called.
-  --   config = function()
-  --     require('everforest').setup {
-  --       italic = false,
-  --     }
-  --   end,
-  -- },
   {
     'folke/tokyonight.nvim',
     lazy = false,
@@ -831,6 +818,17 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'sainnhe/everforest',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- vim.g.everforest_background = 'hard'
+      vim.g.everforest_transparent_background = 2
+      vim.g.everforest_ui_contrast = 'high'
+    end,
+  },
+  { 'projekt0n/github-nvim-theme', name = 'github-theme' },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -854,11 +852,12 @@ require('lazy').setup({
       require('mini.icons').setup()
       require('mini.files').setup {
         vim.keymap.set('n', '<C-n>', function()
-          require('mini.files').open(vim.api.nvim_buf_get_name(0), true)
+          require('mini.files').open()
         end, { desc = 'Open mini.files (directory of current file)' }),
 
         mappings = {
           go_in = '<Enter>',
+          close = '<C-n>',
         },
       }
     end,
@@ -946,7 +945,7 @@ require('lazy').setup({
 
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd.colorscheme 'tokyonight'
+    vim.cmd.colorscheme 'everforest'
   end,
 })
 vim.api.nvim_create_autocmd('VimEnter', {
