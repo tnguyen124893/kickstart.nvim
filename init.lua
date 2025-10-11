@@ -327,19 +327,25 @@ require('lazy').setup({
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
-        -- You can put your default mappings / updates / etc. in here
-        --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        pickers = {
+          live_grep = {
+            file_ignore_patterns = { 'node_modules', '.git', '.venv' },
+            additional_args = function(_)
+              return { "--hidden" }
+            end,
+          },
+          find_files = {
+            no_ignore = true, -- This will prevent .gitignore from being respected
+            hidden = true,
+            no_ignore_parent = true,
+            file_ignore_patterns = { 'node_modules', '.git', '.venv' },
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          fzf = {},
         },
       }
 
@@ -365,17 +371,13 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>')
       vim.keymap.set('n', '<leader>fh', ':Telescope help_tags<CR>')
 
-      -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
-      -- It's also possible to pass additional configuration options.
-      --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
         builtin.live_grep {
           grep_open_files = true,
@@ -628,6 +630,7 @@ require('lazy').setup({
       'sql',
       'md',
       'yaml',
+      'yml',
     },
     keys = {
       -- { "<leader>drf", "<cmd>DbtRun<cr>" },
@@ -637,11 +640,11 @@ require('lazy').setup({
     },
     config = function()
       require('dbtpal').setup {
-        path_to_dbt = '/usr/local/bin/dbt',
+        path_to_dbt = 'dbt',
         path_to_dbt_project = '',
-        path_to_dbt_profiles_dir = vim.fn.expand '~/.dbt',
-        include_profiles_dir = true,
-        include_project_dir = true,
+        path_to_dbt_profiles_dir = '~/.dbt',
+        include_profiles_dir = false,
+        include_project_dir = false,
         include_log_level = true,
         extended_path_search = true,
         protect_compiled_files = true,
@@ -668,20 +671,20 @@ require('lazy').setup({
     },
     opts = {
       notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true, sql = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
-      end,
+      -- format_on_save = function(bufnr)
+      --   -- Disable "format_on_save lsp_fallback" for languages that don't
+      --   -- have a well standardized coding style. You can add additional
+      --   -- languages here or re-enable it for the disabled ones.
+      --   local disable_filetypes = { c = true, cpp = true, sql = true }
+      --   if disable_filetypes[vim.bo[bufnr].filetype] then
+      --     return nil
+      --   else
+      --     return {
+      --       timeout_ms = 500,
+      --       lsp_format = 'fallback',
+      --     }
+      --   end
+      -- end,
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
@@ -850,16 +853,16 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
       require('mini.icons').setup()
-      require('mini.files').setup {
-        vim.keymap.set('n', '<C-n>', function()
-          require('mini.files').open()
-        end, { desc = 'Open mini.files (directory of current file)' }),
-
-        mappings = {
-          go_in = '<Enter>',
-          close = '<C-n>',
-        },
-      }
+      -- require('mini.files').setup {
+      --   vim.keymap.set('n', '<C-n>', function()
+      --     require('mini.files').open()
+      --   end, { desc = 'Open mini.files (directory of current file)' }),
+      --
+      --   mappings = {
+      --     go_in = '<Enter>',
+      --     close = '<C-n>',
+      --   },
+      -- }
     end,
   },
   {
@@ -908,14 +911,14 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  -- -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -945,7 +948,7 @@ require('lazy').setup({
 
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd.colorscheme 'everforest'
+    vim.cmd.colorscheme 'tokyonight-night'
   end,
 })
 vim.api.nvim_create_autocmd('VimEnter', {

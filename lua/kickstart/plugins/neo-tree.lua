@@ -11,7 +11,7 @@ return {
   },
   lazy = false,
   keys = {
-    { '<C-n>', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
+    { '<leader>e', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
   },
   opts = {
     event_handlers = {
@@ -30,7 +30,7 @@ return {
         },
       },
       filtered_items = {
-        visible = false,
+        visible = true,
         hide_dotfiles = false,
         hide_gitignored = false,
       },
