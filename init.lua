@@ -134,10 +134,11 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
+vim.keymap.set('n', '<Leader>b', '<cmd>bp<CR>', { desc = 'Switch to previous buffer' })
 -- Cheat a bit
 vim.keymap.set('n', ';', ':')
-
+vim.keymap.set({ 'n', 'o', 'x' }, '<Leader>h', '^', vim.tbl_extend('force', { noremap = true, silent = true }, { desc = 'Go/Select to Start of Line (^)' }))
+vim.keymap.set({ 'n', 'o', 'x' }, '<Leader>l', '$', vim.tbl_extend('force', { noremap = true, silent = true }, { desc = 'Go/Select to End of Line ($)' }))
 -- [[ Basic Autocommands ]]
 -- Highlight when yanking (copying) text
 --  See `:help vim.hl.on_yank()`
@@ -331,7 +332,7 @@ require('lazy').setup({
           live_grep = {
             file_ignore_patterns = { 'node_modules', '.git', '.venv' },
             additional_args = function(_)
-              return { "--hidden" }
+              return { '--hidden' }
             end,
           },
           find_files = {
@@ -580,13 +581,27 @@ require('lazy').setup({
             },
           },
         },
+        dbt = {
+          cmd = { 'dbt-language-server' },
+          filetypes = { 'sql', 'yaml', 'yml' },
+          root_dir = function(fname)
+            local util = require 'lspconfig.util'
+            return util.root_pattern 'dbt_project.yml'(fname) or util.find_git_ancestor(fname) or vim.fn.getcwd()
+          end,
+          single_file_support = false,
+          settings = {
+            ['dbt-language-server'] = {
+              telemetry = { enabled = false },
+              diagnostics = { enabled = true },
+            },
+          },
+        },
         jinja_lsp = {
           filetypes = { 'jinja', 'sql', 'python' },
           settings = {
             lang = 'sql',
           },
         },
-        sqlls = {},
         lua_ls = {
           settings = {
             Lua = {
@@ -598,14 +613,17 @@ require('lazy').setup({
         },
       }
 
-      local ensure_installed = vim.tbl_keys(servers or {})
+      -- local ensure_installed = vim.tbl_keys(servers or {})
+      local ensure_installed = vim.tbl_filter(function(name)
+        return name ~= 'dbt'
+      end, vim.tbl_keys(servers or {}))
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = { lua_ls, pyright, jinja_lsp, sqlls },
+        ensure_installed = { lua_ls, pyright },
         automatic_installation = false,
         handlers = {
           function(server_name)
@@ -618,6 +636,31 @@ require('lazy').setup({
           end,
         },
       }
+      -- Explicitly define and register the dbt LSP (not managed by mason)
+      local lspconfig = require 'lspconfig'
+      local configs = require 'lspconfig.configs'
+
+      if not configs.dbt then
+        configs.dbt = {
+          default_config = {
+            cmd = { 'dbt-language-server' },
+            filetypes = { 'sql', 'yaml', 'yml' },
+            root_dir = function(fname)
+              local util = require 'lspconfig.util'
+              return util.root_pattern 'dbt_project.yml'(fname) or vim.fs.dirname(vim.fs.find('.git', { path = fname, upward = true })[1]) or vim.fn.getcwd()
+            end,
+            settings = {
+              ['dbt-language-server'] = {
+                telemetry = { enabled = false },
+                diagnostics = { enabled = true },
+              },
+            },
+            single_file_support = false,
+          },
+        }
+      end
+
+      lspconfig.dbt.setup {}
     end,
   },
   { -- Dbt
@@ -638,6 +681,7 @@ require('lazy').setup({
       -- { "<leader>dtf", "<cmd>DbtTest<cr>" },
       { '<leader>dm', "<cmd>lua require('dbtpal.telescope').dbt_picker()<cr>" },
     },
+
     config = function()
       require('dbtpal').setup {
         path_to_dbt = 'dbt',
@@ -783,6 +827,15 @@ require('lazy').setup({
         default = { 'lsp', 'buffer', 'snippets', 'path' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          buffer = {
+            enabled = true,
+            get_bufnrs = function()
+              return vim.api.nvim_list_bufs()
+            end,
+            max_items = 2000,
+            score_offset = 50,
+          },
+          lsp = { score_offset = 0 },
         },
       },
 
@@ -820,6 +873,10 @@ require('lazy').setup({
         keywords = { italic = false },
       },
     },
+  },
+  {
+    'olimorris/onedarkpro.nvim',
+    priority = 1000, -- Ensure it loads first
   },
   {
     'sainnhe/everforest',
@@ -878,7 +935,23 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'sql',
+        'jinja',
+        'python',
+        'yaml',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -948,7 +1021,7 @@ require('lazy').setup({
 
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
-    vim.cmd.colorscheme 'tokyonight-night'
+    vim.cmd.colorscheme 'onedark_dark'
   end,
 })
 vim.api.nvim_create_autocmd('VimEnter', {
